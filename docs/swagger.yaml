@@ -1,0 +1,461 @@
+definitions:
+  controllers._ResponsePostList:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controllers.ResCode'
+        description: 业务响应的状态
+      data:
+        description: 数据
+        items:
+          $ref: '#/definitions/models.ApiPostDetail'
+        type: array
+      message:
+        description: 提示信息
+        type: string
+    type: object
+  controllers.ResCode:
+    enum:
+    - 1000
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1007
+    type: integer
+    x-enum-varnames:
+    - CodeSuccess
+    - CodeInvalidParam
+    - CodeUserExist
+    - CodeUserNotExist
+    - CodeInvalidPassword
+    - CodeServerBusy
+    - CodeNeedLogin
+    - CodeInvalidToken
+  models.ApiPostDetail:
+    properties:
+      author_id:
+        type: integer
+      author_name:
+        type: string
+      community_detail:
+        allOf:
+        - $ref: '#/definitions/models.CommunityDetail'
+        description: 社区信息
+      community_id:
+        type: integer
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+      vote_num:
+        type: integer
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+  models.Community:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.CommunityDetail:
+    properties:
+      create_Time:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      name:
+        type: string
+    type: object
+  models.ParamLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.ParamSignUp:
+    properties:
+      password:
+        type: string
+      re_password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - re_password
+    - username
+    type: object
+  models.ParamVoteData:
+    properties:
+      direction:
+        description: 赞成票（1）还是反对票（-1）取消投票（0）
+        enum:
+        - 1
+        - 0
+        - -1
+        example: "0"
+        type: string
+      post_id:
+        description: UserID从请求中获取当前的用户
+        type: string
+    required:
+    - post_id
+    type: object
+  models.Post:
+    properties:
+      author_id:
+        type: integer
+      community_id:
+        type: integer
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+  models.ResponseError:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  models.ResponseSuccess:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/community:
+    get:
+      consumes:
+      - application/json
+      description: 得到社区信息
+      parameters:
+      - description: 社区参数
+        in: body
+        name: ParamSignUp
+        required: true
+        schema:
+          $ref: '#/definitions/models.Community'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "409":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: 得到社区信息的接口
+      tags:
+      - 社区相关接口(api分组展示使用的)
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: 登录用户账户
+      parameters:
+      - description: 用户登录参数
+        in: body
+        name: ParamLogin
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: 响应错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户登录接口
+      tags:
+      - 用户相关接口(api分组展示使用的)
+  /api/v1/signup:
+    post:
+      consumes:
+      - application/json
+      description: 注册用户账户
+      parameters:
+      - description: 用户注册参数
+        in: body
+        name: ParamSignUp
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "409":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户注册接口
+      tags:
+      - 用户相关接口(api分组展示使用的)
+  /community/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据社区ID获取社区的详细信息
+      parameters:
+      - description: 社区ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "409":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: 获取社区详情
+      tags:
+      - community
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: 根据分页参数获取帖子列表
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiPostDetail'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: 获取帖子列表
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: 根据请求体中的参数创建一个新的帖子
+      parameters:
+      - description: 帖子内容
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.Post'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: 创建新帖子
+      tags:
+      - post
+  /posts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据帖子ID获取特定帖子的详细信息
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: 获取帖子详情
+      tags:
+      - post
+  /posts2:
+    get:
+      consumes:
+      - application/json
+      description: 可按社区时间或分数排序查询帖子列表接口
+      parameters:
+      - description: Bearer JWT
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - in: query
+        name: community_id
+        type: integer
+      - example: score
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers._ResponsePostList'
+      security:
+      - ApiKeyAuth: []
+      summary: 升级版帖子列表接口
+      tags:
+      - 帖子相关接口（api分组展示使用的）
+  /vote:
+    post:
+      consumes:
+      - application/json
+      description: 接收投票数据并处理投票逻辑
+      parameters:
+      - description: 投票数据
+        in: body
+        name: voteData
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamVoteData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: 用户对帖子进行投票
+      tags:
+      - vote
+swagger: "2.0"
